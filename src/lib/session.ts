@@ -15,6 +15,8 @@ export type Viewer = {
   id: number;
   username: string;
   nickname: string;
+  isAdmin: boolean;
+  avatarUrl: string | null;
 };
 
 function sessionCookieOptions(expires: Date) {
@@ -55,6 +57,10 @@ export async function clearSession() {
   cookieStore.delete(SESSION_COOKIE);
 }
 
+export async function clearAllUserSessions(userId: number) {
+  await prisma.session.deleteMany({ where: { userId } });
+}
+
 export const getViewer = cache(async (): Promise<Viewer | null> => {
   const token = (await cookies()).get(SESSION_COOKIE)?.value;
 
@@ -70,6 +76,8 @@ export const getViewer = cache(async (): Promise<Viewer | null> => {
           id: true,
           username: true,
           nickname: true,
+          isAdmin: true,
+          avatarUrl: true,
         },
       },
     },

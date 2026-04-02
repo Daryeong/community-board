@@ -4,6 +4,7 @@ import { createPostAction } from "@/app/actions";
 import { Notice } from "@/components/notice";
 import { PostForm } from "@/components/post-form";
 import { getViewer } from "@/lib/session";
+import { getCategories } from "@/lib/board-data";
 
 export default async function WritePage() {
   const viewer = await getViewer();
@@ -24,13 +25,15 @@ export default async function WritePage() {
     );
   }
 
+  const categories = await getCategories();
+
   return (
     <div className="mx-auto max-w-3xl space-y-4">
       <div>
         <h1 className="text-2xl font-semibold text-slate-900">글쓰기</h1>
         <p className="mt-2 text-sm text-slate-500">제목과 내용을 입력하면 게시판에 바로 반영됩니다.</p>
       </div>
-      <PostForm action={createPostAction} submitLabel="등록하기" />
+      <PostForm action={createPostAction} submitLabel="등록하기" categories={categories} />
     </div>
   );
 }

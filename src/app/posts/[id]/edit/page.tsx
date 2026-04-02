@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { updatePostAction } from "@/app/actions";
 import { Notice } from "@/components/notice";
 import { PostForm } from "@/components/post-form";
-import { getPostDetail } from "@/lib/board-data";
+import { getPostDetail, getCategories } from "@/lib/board-data";
 import { getViewer } from "@/lib/session";
 
 type EditPostPageProps = {
@@ -16,7 +16,7 @@ export default async function EditPostPage({ params }: EditPostPageProps) {
   const postId = Number(id);
   if (Number.isNaN(postId)) notFound();
 
-  const [post, viewer] = await Promise.all([getPostDetail(postId), getViewer()]);
+  const [post, viewer, categories] = await Promise.all([getPostDetail(postId), getViewer(), getCategories()]);
   if (!post) notFound();
 
   if (!viewer || viewer.id !== post.authorId) {
@@ -41,7 +41,9 @@ export default async function EditPostPage({ params }: EditPostPageProps) {
       <PostForm
         action={boundAction}
         submitLabel="수정완료"
-        initialValues={{ title: post.title, content: post.content }}
+        initialValues={{ title: post.title, content: post.content, categoryId: post.category?.id }}
+        initialAttachments={post.attachments}
+        categories={categories}
       />
     </div>
   );
