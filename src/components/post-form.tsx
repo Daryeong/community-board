@@ -75,6 +75,10 @@ function formatFileSize(bytes: number): string {
   return (bytes / (1024 * 1024)).toFixed(1) + " MB";
 }
 
+function isImageAttachment(file: Attachment) {
+  return file.mimeType.startsWith("image/");
+}
+
 function FileUpload({
   attachments,
   onAttachmentsChange,
@@ -152,37 +156,69 @@ function FileUpload({
       )}
 
       {attachments.length > 0 && (
-        <div className="mt-3 space-y-2">
-          {attachments.map((file, index) => (
-            <div
-              key={file.filename}
-              className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm"
-            >
-              <div className="flex items-center gap-2 min-w-0">
-                <span className="truncate text-slate-700">{file.originalName}</span>
-                <span className="text-xs text-slate-400">({formatFileSize(file.size)})</span>
-              </div>
-              <button
-                type="button"
-                onClick={() => removeFile(index)}
-                className="ml-2 shrink-0 rounded-lg p-1 text-slate-400 hover:bg-slate-200 hover:text-rose-600"
+        <div className="mt-4 space-y-3">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {attachments.map((file, index) => (
+              <div
+                key={`${file.filename}-${index}`}
+                className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-50"
               >
-                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-          ))}
+                {isImageAttachment(file) ? (
+                  <div className="relative aspect-[4/3] bg-slate-100">
+                    <img
+                      src={file.url}
+                      alt={file.originalName}
+                      className="h-full w-full object-cover"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeFile(index)}
+                      className="absolute right-2 top-2 rounded-full bg-black/55 p-1.5 text-white transition hover:bg-rose-500"
+                    >
+                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-between gap-3 px-3 py-3 text-sm">
+                    <div className="min-w-0">
+                      <p className="truncate text-slate-700">{file.originalName}</p>
+                      <p className="mt-1 text-xs text-slate-400">{formatFileSize(file.size)}</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => removeFile(index)}
+                      className="shrink-0 rounded-lg p-1 text-slate-400 hover:bg-slate-200 hover:text-rose-600"
+                    >
+                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                )}
+
+                {isImageAttachment(file) ? (
+                  <div className="border-t border-slate-200 bg-white px-3 py-2">
+                    <p className="truncate text-sm font-medium text-slate-700">{file.originalName}</p>
+                    <p className="mt-1 text-xs text-slate-400">{formatFileSize(file.size)}</p>
+                  </div>
+                ) : null}
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
-      <p className="mt-2 text-xs text-slate-400">JPG, PNG, GIF, WEBP, PDF (최대 5MB)</p>
+      <p className="mt-2 text-xs text-slate-400">JPG, PNG, GIF, WEBP, PDF</p>
     </div>
   );
 }
 
 export function PostForm({ action, submitLabel, initialValues, initialAttachments, categories }: PostFormProps) {
   const [state, formAction] = useActionState(action, EMPTY_FORM_STATE);
+  const [titleValue, setTitleValue] = useState(initialValues?.title ?? "");
+  const [contentValue, setContentValue] = useState(initialValues?.content ?? "");
   const [attachments, setAttachments] = useState<Attachment[]>(
     initialAttachments?.map(a => ({
       url: a.url,
@@ -197,19 +233,17 @@ export function PostForm({ action, submitLabel, initialValues, initialAttachment
   const formRef = useRef<HTMLFormElement>(null);
 
   const saveDraft = useCallback(() => {
-    if (!formRef.current) return;
-    const formData = new FormData(formRef.current);
     const draft = {
-      title: formData.get("title") as string,
-      content: formData.get("content") as string,
-      categoryId: formData.get("categoryId") as string,
+      title: titleValue,
+      content: contentValue,
+      categoryId: formRef.current ? (new FormData(formRef.current).get("categoryId") as string) : "",
       savedAt: new Date().toISOString(),
     };
     if (draft.title || draft.content) {
       localStorage.setItem("postDraft", JSON.stringify(draft));
       setLastSaved(new Date());
     }
-  }, []);
+  }, [contentValue, titleValue]);
 
   useEffect(() => {
     const savedDraft = localStorage.getItem("postDraft");
@@ -218,8 +252,14 @@ export function PostForm({ action, submitLabel, initialValues, initialAttachment
       if (formRef.current) {
         const titleInput = formRef.current.querySelector<HTMLInputElement>('input[name="title"]');
         const contentInput = formRef.current.querySelector<HTMLTextAreaElement>('textarea[name="content"]');
-        if (titleInput && draft.title) titleInput.value = draft.title;
-        if (contentInput && draft.content) contentInput.value = draft.content;
+        if (titleInput && draft.title) {
+          titleInput.value = draft.title;
+          setTitleValue(draft.title);
+        }
+        if (contentInput && draft.content) {
+          contentInput.value = draft.content;
+          setContentValue(draft.content);
+        }
       }
     }
   }, [initialValues]);
@@ -278,7 +318,7 @@ export function PostForm({ action, submitLabel, initialValues, initialAttachment
       )}
 
       {categories && categories.length > 0 && (
-        <div>
+        <div className="rounded-[1.75rem] border border-slate-200 bg-slate-50/80 p-5 sm:p-6">
           <label className="mb-2 block text-sm font-medium text-slate-700" htmlFor="category">
             카테고리
           </label>
@@ -298,67 +338,75 @@ export function PostForm({ action, submitLabel, initialValues, initialAttachment
         </div>
       )}
 
-      <div>
-        <label className="mb-2 block text-sm font-medium text-slate-700" htmlFor="tags">
-          태그
-        </label>
-        <div className="flex flex-wrap gap-2">
-          {["질문", "도움", "팁", "후기", "소식"].map((tag) => (
-            <label key={tag} className="cursor-pointer">
-              <input
-                type="checkbox"
-                name="tag"
-                value={tag}
-                defaultChecked={initialValues?.tags?.includes(tag)}
-                className="peer hidden"
-              />
-              <span className="inline-block rounded-full border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-600 peer-checked:border-[var(--color-primary)] peer-checked:bg-[var(--color-primary)] peer-checked:text-white">
-                #{tag}
-              </span>
-            </label>
-          ))}
-        </div>
-        <p className="mt-2 text-xs text-slate-400">원하는 태그를 선택하세요</p>
-      </div>
-
-      <div>
-        <label className="mb-2 block text-sm font-medium text-slate-700" htmlFor="title">
-          제목
-        </label>
-        <InputWithIcon
-          id="title"
-          name="title"
-          defaultValue={initialValues?.title}
-          placeholder="제목을 입력하세요"
-          icon={<TitleIcon />}
-          maxLength={100}
-          required
-        />
-        {state.errors?.title?.[0] ? <p className="mt-2 text-sm text-rose-600">{state.errors.title[0]}</p> : null}
-      </div>
-
-      <div>
-        <label className="mb-2 block text-sm font-medium text-slate-700" htmlFor="content">
-          내용
-        </label>
-        <div className="relative">
-          <div className="pointer-events-none absolute left-4 top-4">
-            <ContentIcon />
+      <section className="overflow-hidden rounded-[2rem] border border-slate-200 bg-[linear-gradient(180deg,_#ffffff,_#f8fafc)] shadow-sm">
+        <div className="border-b border-slate-200 px-5 py-4 sm:px-6">
+          <label className="mb-3 block text-sm font-medium text-slate-700" htmlFor="tags">
+            태그
+          </label>
+          <div className="flex flex-wrap gap-2">
+            {["질문", "도움", "팁", "후기", "소식"].map((tag) => (
+              <label key={tag} className="cursor-pointer">
+                <input
+                  type="checkbox"
+                  name="tag"
+                  value={tag}
+                  defaultChecked={initialValues?.tags?.includes(tag)}
+                  className="peer hidden"
+                />
+                <span className="inline-block rounded-full border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-600 peer-checked:border-[var(--color-primary)] peer-checked:bg-[var(--color-primary)] peer-checked:text-white">
+                  #{tag}
+                </span>
+              </label>
+            ))}
           </div>
-          <textarea
-            id="content"
-            name="content"
-            defaultValue={initialValues?.content}
-            rows={14}
-            placeholder="내용을 입력하세요"
-            className="w-full resize-none rounded-2xl border border-slate-300 bg-white px-12 py-4 text-sm outline-none transition placeholder:text-slate-400 focus:border-[var(--color-primary)] focus:ring-4 focus:ring-[var(--color-primary)]/10"
+        </div>
+
+        <div className="px-5 py-5 sm:px-6 sm:py-6">
+          <label className="mb-2 block text-sm font-medium text-slate-700" htmlFor="title">
+            제목
+          </label>
+          <InputWithIcon
+            id="title"
+            name="title"
+            value={titleValue}
+            onChange={(e) => setTitleValue(e.target.value)}
+            placeholder="제목을 입력하세요"
+            icon={<TitleIcon />}
+            maxLength={100}
             required
           />
-        </div>
-        {state.errors?.content?.[0] ? <p className="mt-2 text-sm text-rose-600">{state.errors.content[0]}</p> : null}
-      </div>
+          {state.errors?.title?.[0] ? <p className="mt-2 text-sm text-rose-600">{state.errors.title[0]}</p> : null}
 
-      <FileUpload attachments={attachments} onAttachmentsChange={setAttachments} />
+          <div className="mt-6 rounded-[1.75rem] border border-slate-200 bg-white shadow-[0_18px_60px_-30px_rgba(15,23,42,0.35)]">
+            <div className="flex items-center justify-between border-b border-slate-200 px-5 py-3">
+              <label className="block text-sm font-medium text-slate-700" htmlFor="content">
+                내용
+              </label>
+              <p className="text-xs text-slate-400">{contentValue.length.toLocaleString()}자</p>
+            </div>
+            <div className="relative bg-slate-50/50 px-4 py-4 sm:px-5 sm:py-5">
+              <div className="pointer-events-none absolute left-8 top-8">
+                <ContentIcon />
+              </div>
+              <textarea
+                id="content"
+                name="content"
+                value={contentValue}
+                onChange={(e) => setContentValue(e.target.value)}
+                rows={18}
+                placeholder="내용을 입력하세요"
+                className="min-h-[380px] w-full resize-none rounded-[1.5rem] border border-slate-200 bg-white px-12 py-5 text-sm leading-7 outline-none transition placeholder:text-slate-400 focus:border-[var(--color-primary)] focus:ring-4 focus:ring-[var(--color-primary)]/10"
+                required
+              />
+            </div>
+          </div>
+          {state.errors?.content?.[0] ? <p className="mt-2 text-sm text-rose-600">{state.errors.content[0]}</p> : null}
+        </div>
+      </section>
+
+      <div className="rounded-[1.75rem] border border-slate-200 bg-slate-50/80 p-5 sm:p-6">
+        <FileUpload attachments={attachments} onAttachmentsChange={setAttachments} />
+      </div>
 
       <div className="flex items-center justify-end gap-3">
         <SubmitButton className="rounded-2xl bg-gradient-to-r from-[var(--color-primary)] to-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-500/25 transition hover:shadow-xl hover:shadow-blue-500/30">

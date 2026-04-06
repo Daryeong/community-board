@@ -28,11 +28,7 @@ export default async function WritePage() {
   const categories = await getCategories();
 
   return (
-    <div className="mx-auto max-w-3xl space-y-4">
-      <div>
-        <h1 className="text-2xl font-semibold text-slate-900">글쓰기</h1>
-        <p className="mt-2 text-sm text-slate-500">제목과 내용을 입력하면 게시판에 바로 반영됩니다.</p>
-      </div>
+    <div className="mx-auto max-w-6xl space-y-6">
       <PostForm action={createPostAction} submitLabel="등록하기" categories={categories} />
     </div>
   );

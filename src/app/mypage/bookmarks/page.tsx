@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 
-import { getUserBookmarksWithFolders, getBookmarkFolders, createBookmarkFolder, deleteBookmarkFolder, moveBookmarkToFolder } from "@/lib/board-data";
+import { getUserBookmarksWithFolders, getBookmarkFolders } from "@/lib/board-data";
 import { createBookmarkFolderAction, deleteBookmarkFolderAction } from "@/app/actions";
 import { getViewer } from "@/lib/session";
 import { formatDate } from "@/lib/utils";
@@ -25,97 +25,47 @@ export default async function BookmarksPage({ searchParams }: BookmarksPageProps
 
   return (
     <div className="mx-auto max-w-4xl space-y-8">
-      <div>
-        <h1 className="text-2xl font-semibold text-slate-900">북마크</h1>
-        <p className="mt-2 text-sm text-slate-500">저장한 글 {bookmarks.length}개</p>
-      </div>
+      <section className="rounded-[2rem] border border-slate-200 bg-[radial-gradient(circle_at_top_left,_rgba(245,158,11,0.14),_transparent_35%),linear-gradient(180deg,_#ffffff,_#f8fafc)] p-6 shadow-sm sm:p-8">
+        <h1 className="text-3xl font-semibold tracking-tight text-slate-900">북마크</h1>
+        <p className="mt-3 text-sm leading-6 text-slate-600">저장한 글을 폴더별로 정리하고, 자주 찾는 글을 빠르게 꺼내볼 수 있습니다.</p>
+        <div className="mt-4 inline-flex rounded-full bg-white px-4 py-2 text-sm font-medium text-slate-600 ring-1 ring-slate-200">저장한 글 {bookmarks.length}개</div>
+      </section>
 
       <div className="flex flex-wrap gap-2">
-        <Link
-          href="/mypage/bookmarks"
-          className={`rounded-full px-4 py-2 text-sm font-medium transition ${
-            !folderId
-              ? "bg-[var(--color-primary)] text-white"
-              : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-          }`}
-        >
+        <Link href="/mypage/bookmarks" className={`rounded-full px-4 py-2 text-sm font-medium transition ${!folderId ? "bg-[var(--color-primary)] text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`}>
           전체
         </Link>
         {folders.map((f) => (
-          <Link
-            key={f.id}
-            href={`/mypage/bookmarks?folder=${f.id}`}
-            className={`rounded-full px-4 py-2 text-sm font-medium transition ${
-              folderId === f.id
-                ? "bg-[var(--color-primary)] text-white"
-                : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-            }`}
-          >
+          <Link key={f.id} href={`/mypage/bookmarks?folder=${f.id}`} className={`rounded-full px-4 py-2 text-sm font-medium transition ${folderId === f.id ? "bg-[var(--color-primary)] text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`}>
             {f.name} ({f._count.bookmarks})
           </Link>
         ))}
         <form action={createBookmarkFolderAction} className="flex gap-2">
-          <input
-            type="text"
-            name="name"
-            placeholder="새 폴더"
-            className="w-32 rounded-full border border-slate-300 px-4 py-2 text-sm outline-none focus:border-[var(--color-primary)]"
-          />
-          <button type="submit" className="rounded-full bg-slate-100 px-4 py-2 text-sm text-slate-600 hover:bg-slate-200">
-            +
-          </button>
+          <input type="text" name="name" placeholder="새 폴더" className="w-32 rounded-full border border-slate-300 px-4 py-2 text-sm outline-none focus:border-[var(--color-primary)]" />
+          <button type="submit" className="rounded-full bg-slate-100 px-4 py-2 text-sm text-slate-600 hover:bg-slate-200">+</button>
         </form>
       </div>
 
       {bookmarks.length === 0 ? (
-        <div className="rounded-3xl border border-slate-200 bg-white p-12 text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-amber-100">
-            <svg className="h-8 w-8 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-            </svg>
-          </div>
-          <p className="text-slate-500">저장한 글이 없습니다.</p>
-          <Link href="/" className="mt-3 inline-block text-sm text-[var(--color-primary)] hover:underline">
-            글 구경하기
-          </Link>
+        <div className="rounded-[1.75rem] border border-dashed border-slate-300 bg-white p-12 text-center text-slate-500">
+          저장한 글이 없습니다.
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-4">
           {bookmarks.map((bookmark) => (
-            <Link
-              key={bookmark.id}
-              href={`/posts/${bookmark.post.id}`}
-              className="block rounded-2xl border border-slate-200 bg-white p-5 transition hover:border-slate-300 hover:shadow-md"
-            >
+            <Link key={bookmark.id} href={`/posts/${bookmark.post.id}`} className="block rounded-[1.75rem] border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-[var(--color-primary)] hover:shadow-md">
               <div className="flex items-start justify-between gap-4">
-                <div className="flex-1 min-w-0">
-                  {bookmark.folder && (
-                    <span className="mb-1 inline-block rounded-full bg-blue-100 px-2 py-0.5 text-xs text-blue-600">
-                      {bookmark.folder.name}
-                    </span>
-                  )}
-                  <h3 className="truncate text-base font-medium text-slate-900">
-                    {bookmark.post.title}
-                  </h3>
-                  <div className="mt-2 flex items-center gap-4 text-sm text-slate-500">
-                    <span>{bookmark.post.author.nickname}</span>
-                    <span>{formatDate(bookmark.post.createdAt)}</span>
+                <div className="min-w-0 flex-1">
+                  {bookmark.folder ? <span className="mb-2 inline-flex rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-700">{bookmark.folder.name}</span> : null}
+                  <h2 className="truncate text-lg font-semibold text-slate-900">{bookmark.post.title}</h2>
+                  <div className="mt-3 flex flex-wrap items-center gap-3 text-sm text-slate-500">
+                    <span className="rounded-full bg-slate-100 px-3 py-1">{bookmark.post.author.nickname}</span>
+                    <span className="rounded-full bg-slate-100 px-3 py-1">{formatDate(bookmark.post.createdAt)}</span>
+                    <span className="rounded-full bg-slate-100 px-3 py-1">댓글 {bookmark.post._count.comments}</span>
+                    <span className="rounded-full bg-slate-100 px-3 py-1">좋아요 {bookmark.post._count.likes}</span>
                   </div>
                 </div>
-                <div className="flex items-center gap-4 text-sm text-slate-400">
-                  <span className="flex items-center gap-1">
-                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                    </svg>
-                    {bookmark.post._count.comments}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                    </svg>
-                    {bookmark.post._count.likes}
-                  </span>
-                </div>
+                <span className="text-xs uppercase tracking-[0.16em] text-slate-400">saved</span>
               </div>
             </Link>
           ))}
@@ -123,21 +73,19 @@ export default async function BookmarksPage({ searchParams }: BookmarksPageProps
       )}
 
       {folders.length > 0 && (
-        <div className="border-t pt-6">
-          <h3 className="mb-4 text-lg font-semibold text-slate-900">폴더 관리</h3>
-          <div className="space-y-2">
+        <section className="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
+          <h2 className="text-lg font-semibold text-slate-900">폴더 관리</h2>
+          <div className="mt-4 space-y-2">
             {folders.map((folder) => (
-              <div key={folder.id} className="flex items-center justify-between rounded-xl border border-slate-200 bg-white p-4">
+              <div key={folder.id} className="flex items-center justify-between rounded-2xl border border-slate-200 bg-slate-50 p-4">
                 <span className="font-medium text-slate-700">{folder.name}</span>
                 <form action={deleteBookmarkFolderAction.bind(null, folder.id)}>
-                  <button type="submit" className="rounded-lg px-3 py-1 text-sm text-rose-600 hover:bg-rose-50">
-                    삭제
-                  </button>
+                  <button type="submit" className="rounded-lg px-3 py-1 text-sm text-rose-600 hover:bg-rose-50">삭제</button>
                 </form>
               </div>
             ))}
           </div>
-        </div>
+        </section>
       )}
     </div>
   );

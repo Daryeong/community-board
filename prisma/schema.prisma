@@ -11,6 +11,8 @@ model User {
   username     String    @unique
   nickname     String
   email        String    @unique
+  bio          String    @default("")
+  profileTheme String    @default("ocean")
   passwordHash String
   avatarUrl    String?
   isAdmin      Boolean   @default(false)

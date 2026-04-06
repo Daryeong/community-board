@@ -21,7 +21,16 @@ export default async function AdminPostsPage({ searchParams }: PostsPageProps) {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-3xl border border-slate-200 bg-white overflow-hidden">
+      <section className="rounded-[1.75rem] border border-slate-200 bg-white p-5 shadow-sm">
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <div>
+            <h2 className="text-lg font-semibold text-slate-900">게시글 관리</h2>
+            <p className="mt-1 text-sm text-slate-500">문제 게시글을 빠르게 정리하고 반응 수치를 함께 확인할 수 있습니다.</p>
+          </div>
+          <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">총 {total}개</span>
+        </div>
+
+        <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white">
         <table className="w-full">
           <thead className="bg-slate-50">
             <tr>
@@ -67,7 +76,8 @@ export default async function AdminPostsPage({ searchParams }: PostsPageProps) {
             ))}
           </tbody>
         </table>
-      </div>
+        </div>
+      </section>
 
       {totalPages > 1 && (
         <div className="flex justify-center gap-2">

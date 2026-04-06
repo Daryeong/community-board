@@ -21,7 +21,16 @@ export default async function AdminUsersPage({ searchParams }: UsersPageProps) {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-3xl border border-slate-200 bg-white overflow-hidden">
+      <section className="rounded-[1.75rem] border border-slate-200 bg-white p-5 shadow-sm">
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <div>
+            <h2 className="text-lg font-semibold text-slate-900">회원 관리</h2>
+            <p className="mt-1 text-sm text-slate-500">가입자 현황과 작성 활동을 빠르게 검토할 수 있습니다.</p>
+          </div>
+          <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">총 {total}명</span>
+        </div>
+
+        <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white">
         <table className="w-full">
           <thead className="bg-slate-50">
             <tr>
@@ -66,7 +75,8 @@ export default async function AdminUsersPage({ searchParams }: UsersPageProps) {
             ))}
           </tbody>
         </table>
-      </div>
+        </div>
+      </section>
 
       {totalPages > 1 && (
         <div className="flex justify-center gap-2">

@@ -240,7 +240,7 @@ export async function createCommentAction(postId: number, parentId: number | nul
   }
 
   revalidatePath(`/posts/${postId}`);
-  redirect(`/posts/${postId}`);
+  redirect(`/posts/${postId}?comment=${result.commentId}#comment-${result.commentId}`);
 }
 
 export async function updateCommentAction(commentId: number, formData: FormData) {
@@ -294,7 +294,10 @@ export async function changePasswordAction(_: FormState, formData: FormData): Pr
   const confirmPassword = formData.get("confirmPassword") as string;
 
   if (newPassword !== confirmPassword) {
-    return { message: "새 비밀번호와 확인이 일치하지 않습니다." };
+    return {
+      errors: { confirmPassword: ["새 비밀번호와 확인이 일치하지 않습니다."] },
+      message: "새 비밀번호와 확인이 일치하지 않습니다.",
+    };
   }
 
   const result = await changePassword(viewer.id, {
@@ -325,6 +328,8 @@ export async function updateProfileAction(_: FormState, formData: FormData): Pro
   const result = await updateUserProfile(viewer.id, {
     nickname: formData.get("nickname"),
     email: formData.get("email"),
+    bio: formData.get("bio"),
+    profileTheme: formData.get("profileTheme"),
     avatarUrl: avatarUrl || null,
   });
 

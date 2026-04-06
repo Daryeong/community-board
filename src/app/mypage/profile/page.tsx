@@ -12,12 +12,12 @@ export default async function ProfilePage() {
 
   const user = await prisma.user.findUnique({
     where: { id: viewer.id },
-    select: { nickname: true, email: true, avatarUrl: true },
+    select: { nickname: true, email: true, avatarUrl: true, bio: true, profileTheme: true },
   });
 
   if (!user) {
     redirect("/login");
   }
 
-  return <ProfileEditClient initialData={{ nickname: user.nickname, email: user.email, avatarUrl: user.avatarUrl }} />;
+  return <ProfileEditClient initialData={{ nickname: user.nickname, email: user.email, avatarUrl: user.avatarUrl, bio: user.bio, profileTheme: user.profileTheme }} />;
 }

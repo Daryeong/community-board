@@ -586,7 +586,7 @@ export async function updateUserProfile(userId: number, raw: unknown) {
     return { ok: false as const, errors: parsed.error.flatten().fieldErrors };
   }
 
-  const { nickname, email, avatarUrl } = parsed.data;
+  const { nickname, email, avatarUrl, bio, profileTheme } = parsed.data;
 
   const existing = await prisma.user.findFirst({
     where: {
@@ -606,7 +606,7 @@ export async function updateUserProfile(userId: number, raw: unknown) {
 
   await prisma.user.update({
     where: { id: userId },
-    data: { nickname, email, avatarUrl },
+    data: { nickname, email, avatarUrl, bio, profileTheme },
   });
 
   return { ok: true as const };

@@ -70,6 +70,8 @@ export const updateProfileSchema = z.object({
     .max(15, "닉네임은 15자 이하여야 합니다.")
     .refine((v) => !FORBIDDEN_NICKNAMES.includes(v.toLowerCase()), "사용할 수 없는 닉네임입니다."),
   email: z.email("올바른 이메일을 입력해주세요.").trim(),
+  bio: z.string().trim().max(60, "소개는 60자 이하여야 합니다.").optional().default(""),
+  profileTheme: z.enum(["ocean", "sunset", "forest", "violet"]).optional().default("ocean"),
   avatarUrl: z.string().nullable().optional(),
 });
 

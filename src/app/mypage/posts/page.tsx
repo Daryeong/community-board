@@ -22,47 +22,34 @@ export default async function MyPostsPage({ searchParams }: MyPostsPageProps) {
 
   return (
     <div className="mx-auto max-w-4xl space-y-8">
-      <div>
-        <h1 className="text-2xl font-semibold text-slate-900">내가 쓴 글</h1>
-        <p className="mt-2 text-sm text-slate-500">총 {total}개의 글</p>
-      </div>
+      <section className="rounded-[2rem] border border-slate-200 bg-[radial-gradient(circle_at_top_left,_rgba(59,130,246,0.12),_transparent_35%),linear-gradient(180deg,_#ffffff,_#f8fafc)] p-6 shadow-sm sm:p-8">
+        <h1 className="text-3xl font-semibold tracking-tight text-slate-900">내가 쓴 글</h1>
+        <p className="mt-3 text-sm leading-6 text-slate-600">작성한 게시글을 시간 순서대로 모아보고, 반응 수를 빠르게 확인할 수 있습니다.</p>
+        <div className="mt-4 inline-flex rounded-full bg-white px-4 py-2 text-sm font-medium text-slate-600 ring-1 ring-slate-200">총 {total}개</div>
+      </section>
 
-      <div className="rounded-3xl border border-slate-200 bg-white overflow-hidden">
-        <table className="w-full">
-          <thead className="bg-slate-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">제목</th>
-              <th className="px-6 py-3 text-center text-xs font-medium text-slate-500 uppercase">댓글</th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase">작성일</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-200">
-            {posts.length === 0 ? (
-              <tr>
-                <td colSpan={3} className="px-6 py-12 text-center text-slate-500">
-                  작성한 글이 없습니다.
-                </td>
-              </tr>
-            ) : (
-              posts.map((post) => (
-                <tr key={post.id} className="hover:bg-slate-50">
-                  <td className="px-6 py-4">
-                    <Link href={`/posts/${post.id}`} className="text-sm font-medium text-slate-900 hover:text-[var(--color-primary)]">
-                      {post.title}
-                    </Link>
-                  </td>
-                  <td className="px-6 py-4 text-center text-sm text-slate-500">
-                    {post._count.comments}
-                  </td>
-                  <td className="px-6 py-4 text-right text-sm text-slate-500">
-                    {formatDate(post.createdAt)}
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+      {posts.length === 0 ? (
+        <div className="rounded-[1.75rem] border border-dashed border-slate-300 bg-white px-6 py-14 text-center text-sm text-slate-500">
+          작성한 글이 없습니다.
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {posts.map((post) => (
+            <Link key={post.id} href={`/posts/${post.id}`} className="block rounded-[1.75rem] border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-[var(--color-primary)] hover:shadow-md">
+              <div className="flex items-start justify-between gap-4">
+                <div className="min-w-0 flex-1">
+                  <h2 className="truncate text-lg font-semibold text-slate-900">{post.title}</h2>
+                  <div className="mt-3 flex flex-wrap items-center gap-3 text-sm text-slate-500">
+                    <span className="rounded-full bg-slate-100 px-3 py-1">댓글 {post._count.comments}</span>
+                    <span className="rounded-full bg-slate-100 px-3 py-1">작성일 {formatDate(post.createdAt)}</span>
+                  </div>
+                </div>
+                <span className="text-xs uppercase tracking-[0.16em] text-slate-400">detail</span>
+              </div>
+            </Link>
+          ))}
+        </div>
+      )}
 
       {totalPages > 1 && (
         <div className="flex justify-center gap-2">
@@ -70,11 +57,7 @@ export default async function MyPostsPage({ searchParams }: MyPostsPageProps) {
             <Link
               key={p}
               href={`/mypage/posts?page=${p}`}
-              className={`rounded-lg px-3 py-1 text-sm ${
-                p === currentPage
-                  ? "bg-[var(--color-primary)] text-white"
-                  : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-              }`}
+              className={`rounded-lg px-3 py-1 text-sm ${p === currentPage ? "bg-[var(--color-primary)] text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`}
             >
               {p}
             </Link>

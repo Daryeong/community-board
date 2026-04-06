@@ -51,6 +51,25 @@ describe("postSchema", () => {
   });
 });
 
+describe("updateProfileSchema", () => {
+  it("accepts a short bio and theme choice", async () => {
+    const { updateProfileSchema } = await import("./board");
+
+    const result = updateProfileSchema.safeParse({
+      nickname: "테스터",
+      email: "tester@example.com",
+      avatarUrl: null,
+      bio: "한 줄 소개입니다.",
+      profileTheme: "sunset",
+    });
+
+    expect(result.success).toBe(true);
+    if (!result.success) return;
+    expect(result.data.bio).toBe("한 줄 소개입니다.");
+    expect(result.data.profileTheme).toBe("sunset");
+  });
+});
+
 describe("buildCommentTree", () => {
   it("nests one-level replies beneath their parent comment", () => {
     const tree = buildCommentTree([

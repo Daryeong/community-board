@@ -22,6 +22,15 @@ export default async function AdminReportsPage({ searchParams }: ReportsPageProp
 
   return (
     <div className="space-y-6">
+      <section className="rounded-[1.75rem] border border-slate-200 bg-white p-5 shadow-sm">
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <div>
+            <h2 className="text-lg font-semibold text-slate-900">신고 관리</h2>
+            <p className="mt-1 text-sm text-slate-500">대기중 신고를 우선 검토하고, 처리 상태별로 빠르게 전환할 수 있습니다.</p>
+          </div>
+          <span className="rounded-full bg-rose-50 px-3 py-1 text-xs font-medium text-rose-600">현재 {reportStatus}</span>
+        </div>
+
       <div className="flex gap-2">
         {["pending", "resolved", "dismissed"].map((s) => (
           <Link
@@ -86,6 +95,7 @@ export default async function AdminReportsPage({ searchParams }: ReportsPageProp
           ))}
         </div>
       )}
+      </section>
     </div>
   );
 }
