@@ -44,18 +44,16 @@ export default async function MyPage() {
   const [stats, activity] = await Promise.all([getUserStats(viewer.id), getUserActivity(viewer.id)]);
 
   const shortName = viewer.nickname.charAt(0);
-  const latestPost = activity.recentPosts[0];
-  const latestComment = activity.recentComments[0];
-
   return (
     <div className="mx-auto max-w-5xl space-y-8">
       <section className="overflow-hidden rounded-[2rem] border border-slate-200 bg-[radial-gradient(circle_at_top_left,_rgba(14,165,233,0.14),_transparent_34%),linear-gradient(180deg,_#ffffff,_#f8fafc)] p-6 shadow-sm sm:p-8">
-        <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
-          <div className="flex flex-col gap-6">
-            <div className="flex items-start gap-4">
-              <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-[1.5rem] bg-gradient-to-br from-[var(--color-primary)] to-blue-600 text-2xl font-semibold text-white shadow-lg shadow-blue-500/20">
-                {shortName}
-              </div>
+          <div className="grid gap-6">
+            <div className="flex flex-col gap-6">
+              <div className="flex items-start gap-4">
+                <div className="relative flex h-16 w-16 shrink-0 items-center justify-center rounded-[1.5rem] bg-gradient-to-br from-[var(--color-primary)] to-blue-600 text-2xl font-semibold text-white shadow-lg shadow-blue-500/20">
+                  <span className="absolute bottom-0 right-0 h-3.5 w-3.5 rounded-full border-2 border-white bg-emerald-500 shadow-sm" aria-hidden="true" />
+                  {shortName}
+                </div>
               <div className="min-w-0">
                 <p className="text-sm font-medium text-sky-700">My Dashboard</p>
                 <h1 className="mt-1 text-3xl font-semibold tracking-tight text-slate-900 sm:text-[2rem]">{viewer.nickname}님의 마이페이지</h1>
@@ -75,18 +73,7 @@ export default async function MyPage() {
             </div>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
-            <div className="rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-sm">
-              <p className="text-xs font-medium uppercase tracking-[0.2em] text-slate-400">계정 상태</p>
-              <div className="mt-3 flex items-center justify-between gap-4">
-                <div>
-                  <p className="text-lg font-semibold text-slate-900">활성 계정</p>
-                  <p className="mt-1 text-sm text-slate-500">최근 활동이 정리되어 있습니다.</p>
-                </div>
-                <div className="rounded-2xl bg-emerald-50 px-3 py-2 text-sm font-medium text-emerald-700">정상</div>
-              </div>
-            </div>
-
+          <div className="grid gap-3">
             <div className="rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-sm">
               <p className="text-xs font-medium uppercase tracking-[0.2em] text-slate-400">최근 반응</p>
               <div className="mt-3 flex items-end justify-between gap-4">

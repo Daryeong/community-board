@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 
 import { logoutAction } from "@/app/actions";
 import { getViewer } from "@/lib/session";
@@ -16,14 +16,6 @@ function PenIcon() {
   return (
     <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-    </svg>
-  );
-}
-
-function UserIcon() {
-  return (
-    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
     </svg>
   );
 }
@@ -89,6 +81,15 @@ function Avatar({ name, avatarUrl, size = "sm" }: { name: string; avatarUrl?: st
   );
 }
 
+function StatusAvatar({ name, avatarUrl }: { name: string; avatarUrl?: string | null }) {
+  return (
+    <div className="relative shrink-0">
+      <Avatar name={name} avatarUrl={avatarUrl} />
+      <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-white bg-emerald-500 shadow-sm" aria-hidden="true" />
+    </div>
+  );
+}
+
 export async function Header() {
   const viewer = await getViewer();
   const unreadCount = viewer ? await getUnreadNotificationCount(viewer.id) : 0;
@@ -109,7 +110,7 @@ export async function Header() {
           {viewer ? (
             <>
               <Link href="/mypage" className="hidden items-center gap-2 rounded-full bg-slate-100 px-3 py-1.5 sm:flex">
-                <Avatar name={viewer.nickname} avatarUrl={viewer.avatarUrl} />
+                <StatusAvatar name={viewer.nickname} avatarUrl={viewer.avatarUrl} />
                 <span className="text-sm font-medium text-slate-700">{viewer.nickname}</span>
               </Link>
 
@@ -133,11 +134,6 @@ export async function Header() {
                   <span className="hidden sm:inline">관리자</span>
                 </Link>
               )}
-
-              <Link href="/mypage" className="flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-600 transition hover:border-slate-300 hover:bg-slate-50">
-                <UserIcon />
-                <span className="hidden sm:inline">마이페이지</span>
-              </Link>
 
               <form action={logoutAction}>
                 <button type="submit" className="flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-600 transition hover:border-slate-300 hover:bg-slate-50">
